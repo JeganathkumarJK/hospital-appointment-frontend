@@ -1,0 +1,25 @@
+:root {
+  --navy: #0d2d44;
+  --navy-soft: #173e59;
+  --mint: #a8dfcb;
+  --page-bg: #f3f7f7;
+  --line: #dce6e7;
+  --muted: #6c7d88;
+  --sans: 'Trebuchet MS', 'Segoe UI', sans-serif;
+  --heading: Georgia, 'Times New Roman', serif;
+  font: 16px/145% var(--sans);
+  color: var(--navy);
+  background: var(--page-bg);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  margin: 0;
+}
+
+#root {
+  min-height: 100vh;
+}
