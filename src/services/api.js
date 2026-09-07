@@ -159,3 +159,23 @@ export function getPatients() {
 export function getUsers() {
   return request('/auth/users')
 }
+
+export function deleteUser(userId) {
+  return request(`/auth/users/${userId}`, { method: 'DELETE' })
+}
+
+export function deleteAppointment(aptId) {
+  return request(`/appointments/${aptId}`, { method: 'DELETE' })
+}
+
+export function deleteWaitlist(waitlistId) {
+  return request(`/waitlist/${waitlistId}`, { method: 'DELETE' })
+}
+
+export function getLoginHistory(limit = 50) {
+  return request(`/auth/login-history?limit=${limit}`)
+}
+
+export function clearLoginHistory() {
+  return request('/auth/login-history', { method: 'DELETE' })
+}
