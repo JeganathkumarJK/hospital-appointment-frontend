@@ -137,3 +137,25 @@ export function predictNoShow(data) {
     body: JSON.stringify(data),
   })
 }
+
+export function registerUser(data) {
+  return request('/auth/register', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  })
+}
+
+export function loginUser(data) {
+  return request('/auth/login', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  })
+}
+
+export function getPatients() {
+  return request('/auth/patients')
+}
+
+export function getUsers() {
+  return request('/auth/users')
+}

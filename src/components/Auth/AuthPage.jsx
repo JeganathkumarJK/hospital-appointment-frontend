@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { registerUser, loginUser } from '../../services/api'
 import './AuthPage.css'
 
 export default function AuthPage({ onLogin, registeredPatients = [], onRegisterNewPatient }) {
@@ -6,6 +7,7 @@ export default function AuthPage({ onLogin, registeredPatients = [], onRegisterN
   const [mode, setMode] = useState('signin') // 'signin' | 'signup'
   const [showPassword, setShowPassword] = useState(false)
   const [errorMessage, setErrorMessage] = useState('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   // Sign In Form state
   const [signInData, setSignInData] = useState({
@@ -26,7 +28,7 @@ export default function AuthPage({ onLogin, registeredPatients = [], onRegisterN
   })
 
   // Handle Sign In submission
-  const handleSignIn = (e) => {
+  const handleSignIn = async (e) => {
     e.preventDefault()
     setErrorMessage('')
 
@@ -38,6 +40,25 @@ export default function AuthPage({ onLogin, registeredPatients = [], onRegisterN
       setErrorMessage('Please enter your password.')
       return
     }
+
+    setIsSubmitting(true)
+
+    // Attempt Backend API authentication first
+    try {
+      const serverUser = await loginUser({
+        identifier: signInData.identifier.trim(),
+        password: signInData.password,
+      })
+      if (serverUser && serverUser.id) {
+        setIsSubmitting(false)
+        onLogin(serverUser)
+        return
+      }
+    } catch {
+      // If server returns credentials error or is offline, fallback to client matching
+    }
+
+    setIsSubmitting(false)
 
     if (role === 'admin') {
       // Admin Login
@@ -80,7 +101,7 @@ export default function AuthPage({ onLogin, registeredPatients = [], onRegisterN
   }
 
   // Handle Patient Sign Up submission
-  const handleSignUp = (e) => {
+  const handleSignUp = async (e) => {
     e.preventDefault()
     setErrorMessage('')
 
@@ -97,6 +118,8 @@ export default function AuthPage({ onLogin, registeredPatients = [], onRegisterN
       return
     }
 
+    setIsSubmitting(true)
+
     const newId = `P${String(registeredPatients.length + 1).padStart(3, '0')}`
     const newPatient = {
       id: newId,
@@ -108,6 +131,27 @@ export default function AuthPage({ onLogin, registeredPatients = [], onRegisterN
       joined: new Date().toISOString().split('T')[0],
       role: 'patient',
     }
+
+    // Persist to Cloud Backend
+    try {
+      const serverPatient = await registerUser({
+        fullName: signUpData.fullName.trim(),
+        email: signUpData.email.trim(),
+        password: signUpData.password,
+        phone: signUpData.phone || '+1 (555) 987-6543',
+        age: parseInt(signUpData.age, 10) || 30,
+        gender: signUpData.gender || 'Other',
+        role: 'patient',
+      })
+      if (serverPatient && serverPatient.id) {
+        newPatient.id = serverPatient.id
+        newPatient.name = serverPatient.name || newPatient.name
+      }
+    } catch {
+      // Graceful fallback to client storage if offline
+    }
+
+    setIsSubmitting(false)
 
     if (onRegisterNewPatient) {
       onRegisterNewPatient(newPatient)
